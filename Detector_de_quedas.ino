@@ -1,5 +1,6 @@
 
   #include<Wire.h>//Biblioteca para comunicação I2C
+  // Incluir bibliotecas Lora e dependencias
   
   const int MPU_addr=0x68; //Endereço do sensor
   int valorAtual = 0;
