@@ -8,20 +8,22 @@
 
 String dadoRecebido = ""; // String de leitura
 
-
-
 void setup(){
 
-	Serial.begin(9600)
+	Serial.begin(9600);
 
  // Testando se a comunicação está sendo feita
-	while(!Serial);
-	Serial.println("Receptor LoRa");
+	while(!Serial){
 
-	if(!LoRa.begin(433E6)){  //Frequencia de Operacao (ou 915E6)
-		Serial.println("Falha ao Iniciar o Lora!");
-		while(1)
-	}
+    Serial.println("Receptor LoRa");
+
+	  if(!LoRa.begin(433E6)){  //Frequencia de Operacao (ou 915E6)
+      Serial.println("Falha ao Iniciar o Lora!");
+      while(1);
+	  }
+
+  }
+	  
 }
 
 void loop(){
@@ -30,16 +32,17 @@ void loop(){
 	int packetSize = LoRa.parsePacket();
 
 	if(packetSize){
-	    //Lê pacote
+	  //Lê pacote
 		while(LoRa.available()){
 			dadoRecebido = LoRa.read();
 		}
+
+    Serial.println("Alerta Recebido");
+	  Serial.println(dadoRecebido);
+	  //Piscar uma led para emitir o alerta
+	  delay(100);
+
 	}
 
 	
-	Serial.print("Alerta Recebido");
-	Serial.print(dadoRecebido)
-	//Piscar uma led para emitir o alerta
-	delay(100);
-
 }
