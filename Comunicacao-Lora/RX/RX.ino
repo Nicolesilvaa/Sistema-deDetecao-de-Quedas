@@ -37,10 +37,10 @@ void loop(){
 			dadoRecebido = LoRa.read();
 		}
 
-    Serial.println("Alerta Recebido");
-	  Serial.println(dadoRecebido);
-	  //Piscar uma led para emitir o alerta
-	  delay(100);
+    		Serial.println("Alerta Recebido");
+	  	Serial.println(dadoRecebido);
+	  	//Piscar ou tocar um alarme uma led para emitir o alerta
+	  	delay(100);
 
 	}
 
