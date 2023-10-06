@@ -15,20 +15,21 @@
 
 void setup(){
 
-	Serial.begin(9600);
+	Serial.begin(9600); // Serial.begin() -> Inicia a blibioteca com a frequência especificada
 
-    // Testando se a comunicação está sendo feita
-	while(!Serial){
+  // Testando se a comunicação está sendo feita
+	while(!Serial);
 
-    Serial.println("Transmissor LoRa");
+  Serial.println("Transmissor LoRa");
 
-	  if(!LoRa.begin(433E6)){  //Frequencia de Operacao (ou 915E6)
-		  Serial.println("Falha ao Iniciar o Lora!");
-		  while(1);
+	if(!LoRa.begin(433E6)){  //Frequencia de Operacao (ou 915E6)
+
+		Serial.println("Falha ao Iniciar o Lora!");
+		while(1);
 	
-	  }
+	}
 
-  }
+  
 	  
 }
 
@@ -43,14 +44,14 @@ void loop(){
 		
 	}
 
-	if(LoRa.available()){
+	if(LoRa.available()){ // LoRa.available -> Retorna o número de bytes disponíveis para leitura.
 		
-		String recebido = LoRa.readString();
+		String recebido = LoRa.read();  // LoRa.read() -> Retorna o próximo byte do pacote ou -1 se nenhum byte estiver disponível
 		Serial.println(recebido);
 
-		if(recebido == confirmacao){
-			LoRa.endPacket();
-		}
+		if(recebido == confirmacao)
+			LoRa.endPacket(); // Finaliza o envio do pacote
+		
 	}
 
 }
