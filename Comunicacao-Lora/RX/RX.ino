@@ -35,10 +35,10 @@ void loop(){
 			dadoRecebido = LoRa.read(); // LoRa.read() - > Retorna o próximo byte do pacote ou -1 se nenhum byte estiver disponível
 		}
 
-    Serial.println("Alerta Recebido");
-	  Serial.println(dadoRecebido);
-	  //Piscar uma led para emitir o alerta
-	  delay(100);
+    		Serial.println("Alerta Recebido");
+	  	Serial.println(dadoRecebido);
+	  	//Piscar ou tocar um alarme uma led para emitir o alerta
+	  	delay(100);
 
 	}
 
