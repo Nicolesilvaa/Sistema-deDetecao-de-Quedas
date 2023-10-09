@@ -31,8 +31,9 @@ Usage:
 
 #define RF_FREQUENCY                                2410000000 // Hz
 
+
 /* if compile the code for slave, uncommand the below line*/
-#define		MASTER //Master - Transmissor Slave - Receptor
+#define	MASTER //Master - Transmissor Slave - Receptor
 
 SX1280 LoRa1280;	//define a object of class SX1280.
 loRa_Para_t	lora_para;	//define a struct to hold lora parameters.
@@ -44,7 +45,7 @@ uint8_t bw_table[4]={LORA_BW_0200,LORA_BW_0400,LORA_BW_0800,LORA_BW_1600}; // La
 uint8_t cr_table[7]={LORA_CR_4_5,LORA_CR_4_6,LORA_CR_4_7,LORA_CR_4_8,LORA_CR_LI_4_5,LORA_CR_LI_4_6,LORA_CR_LI_4_7}; // Code rate 
 
 
-uint8_t tx_buf[]={1,2,3,4,5,6}; // Informações que estão sendo printada no serial (Receptor)
+uint8_t tx_buf[]={"Olá estou recebendo informações"}; // Informações que estão sendo printada no serial (Receptor)
 uint16_t tx_cont = 0;
 
 uint8_t  rx_buf[20]={}; // Dado recebido 
@@ -76,9 +77,9 @@ void setup(void)
 	#ifdef SLAVE
 		LoRa1280.RxBufferInit(rx_buf,&rx_size);
                 LoRa1280.RxInit();    // wait for packet from master
-		Serial.println("SX1280 demo slave!");
+		Serial.println("Comunicação iniciada Receptor");
 	#else
-		Serial.println("SX1280 demo master!");
+		Serial.println("Comunicação Iniciada Transmissor!");
 	#endif
 }
 
@@ -101,7 +102,7 @@ void loop(void)
 
 	val=Serial.read();  // please make sure serial is OK befor runing this code
     
-	LoRa1280.TxPacket(tx_buf,sizeof(tx_buf));
+//	LoRa1280.TxPacket(tx_buf,sizeof(tx_buf));
 	state = LoRa1280.WaitForIRQ_TxDone();
 	if(state)
 	{
@@ -109,14 +110,14 @@ void loop(void)
 		Serial.print("tx_cont = ");
 		Serial.println(tx_cont);
 
-  for(int  i = 0; i < sizeof(tx_buf); i++){
+    for(int  i = 0; i < sizeof(tx_buf); i++){
 
     Serial.print("tx_buf = ");
 		Serial.println(tx_buf[i]);
+    Serial.println();
+    delay(1000);
 
-    delay(100);
-
-  }
+    }
     
 	}
     delay(1000);
