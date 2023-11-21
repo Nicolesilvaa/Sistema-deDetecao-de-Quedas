@@ -29,8 +29,9 @@ Usage:
 #include <SoftwareSerial.h>
 #include <SX1280.h>
 
-#define RF_FREQUENCY                                2410000000 // Hz
-
+#define RF_FREQUENCY                2410000000 // Hz
+#define RADIO_GET_RSSIINST          0x1F //Retorna Intensidade sinal 
+#define IRQ_RX_TX_TIMEOUT           0x4000 //Tempo total disponível para que uma requisição seja processada e respondida
 
 /* if compile the code for slave, uncommand the below line*/
 #define	MASTER //Master - Transmissor Slave - Receptor
@@ -55,6 +56,11 @@ uint16_t rx_size = 0;
 uint8_t val;
 uint8_t state;
 
+// calculaPing(){
+//   // Função que vai enviar e receber mensagem 1000x e medir o tempo médio delas
+
+
+// }
 
 void setup(void) 
 {
@@ -100,24 +106,57 @@ void loop(void)
 	
 #else
 
-	val=Serial.read();  // please make sure serial is OK befor runing this code
+	val= Serial.read();  // please make sure serial is OK befor runing this code
+  
     
-//	LoRa1280.TxPacket(tx_buf,sizeof(tx_buf));
+  LoRa1280.TxPacket(tx_buf,sizeof(tx_buf));
 	state = LoRa1280.WaitForIRQ_TxDone();
 	if(state)
 	{
 		tx_cont++;
-		Serial.print("tx_cont = ");
+		Serial.print("Contador \n");
 		Serial.println(tx_cont);
-
-    for(int  i = 0; i < sizeof(tx_buf); i++){
-
-    Serial.print("tx_buf = ");
-		Serial.println(tx_buf[i]);
     Serial.println();
-    delay(1000);
+  }
 
-    }
+
+uint8_t  rx_buf[20]={}; // Dado recebido 
+uint16_t rx_cont = 0;
+uint16_t rx_size = 0;
+
+uint8_t val;
+uint8_t state;
+
+// calculaPing(){
+//   // Função que vai enviar e receber mensagem 1000x e medir o tempo médio delas
+
+Não conectado. Selecione uma placa e uma porta para conectar automaticamente.
+Nova linha
+
+
+    Serial.println("Intensidade de sinal(RSSI) em dBm(decibéis para um miliwatt )\n");
+    Serial.print(RADIO_GET_RSSIINST);
+    Serial.println();
+
+    Serial.println("Tempo médio da mensagem \n ");
+    Serial.print(IRQ_RX_TX_TIMEOUT);
+    Serial.println();
+
+    Serial.println("Variação de tempo \n ");
+    Serial.print(IRQ_RANGING_MASTER_RESULT_TIMEOUT);
+    Serial.println();
+
+
+
+ 
+
+    // for(int  i = 0; i < sizeof(tx_buf); i++){
+
+    // Serial.print("tx_buf = ");
+		// Serial.println(tx_buf[i]);
+    // delay(1000);
+
+    // }
     
 	}
     delay(1000);
