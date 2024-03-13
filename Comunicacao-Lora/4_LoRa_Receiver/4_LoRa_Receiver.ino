@@ -24,7 +24,7 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
+#define Program_Version "Teste_NicoleSilva"
 
 #include <SPI.h>                                 //the lora device is SPI based so load the SPI library
 #include <SX128XLT.h>                            //include the appropriate library   
@@ -176,7 +176,8 @@ void setup()
   Serial.println(F(__DATE__));
   Serial.println(F(Program_Version));
   Serial.println();
-  Serial.println(F("4_LoRa_Receiver Starting"));
+  Serial.println(F("Iniciando comunicação - Receptor");
+  Serial.println(F("Lasid UFBA");
   Serial.println();
 
   if (BUZZER > 0)
@@ -233,14 +234,16 @@ void setup()
   Serial.println();
   LT.printModemSettings();                                     //reads and prints the configured LoRa settings, useful check
   Serial.println();
-  LT.printOperatingSettings();                                 //reads and prints the configured operting settings, useful check
-  Serial.println();
   Serial.println();
   LT.printRegisters(0x900, 0x9FF);                             //print contents of device registers
   Serial.println();
   Serial.println();
 
-  Serial.print(F("Receiver ready - RXBUFFER_SIZE "));
+  Serial.print(F("Dados Recebdidos - RXBUFFER_SIZE "));
   Serial.println(RXBUFFER_SIZE);
+  Serial.println();
+
+  Serial.print(F(",RSSI,"));
+  Serial.print(PacketRSSI);
   Serial.println();
 }

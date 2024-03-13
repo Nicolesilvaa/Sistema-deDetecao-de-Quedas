@@ -21,7 +21,7 @@
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
+#define Program_Version "Teste_NicoleSilva"
 
 #include <SPI.h>                                               //the SX128X device is SPI based so load the SPI library                                         
 #include <SX128XLT.h>                                          //include the appropriate library  
@@ -32,7 +32,8 @@ SX128XLT LT;                                                   //create a librar
 uint8_t TXPacketL;
 uint32_t TXPacketCount, startmS, endmS;
 
-uint8_t buff[] = "Hello World 1234567890";
+
+uint8_t buff[] = "Experimento transmissão Lora";
 
 void loop()
 {
@@ -109,6 +110,14 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
   }
 }
 
+//Calculando a taxa nominal de bits, ou seja, quantidade de dados por seg que é transmitido (bits/segundo)
+void taxa_nominal(){
+
+  uint16_t tb = ((2^SpreadingFactor)/406250)
+  return tb;
+ 
+}
+
 
 void setup()
 {
@@ -122,7 +131,8 @@ void setup()
   Serial.println(F(__DATE__));
   Serial.println(F(Program_Version));
   Serial.println();
-  Serial.println(F("3_LoRa_Transmitter Starting"));
+  Serial.println(F("Iniciando comunicação - Transmissor");
+    Serial.println(F("Lasid UFBA");
 
   SPI.begin();
 
@@ -170,14 +180,21 @@ void setup()
   Serial.println();
   LT.printModemSettings();                               //reads and prints the configured LoRa settings, useful check
   Serial.println();
-  LT.printOperatingSettings();                           //reads and prints the configured operating settings, useful check
   Serial.println();
-  Serial.println();
+
   LT.printRegisters(0x900, 0x9FF);                       //print contents of device registers
   Serial.println();
   Serial.println();
 
-  Serial.print(F("Transmitter ready"));
+  Serial.print(F("Transmissão Realizada"));
   Serial.println();
+
+  Serial.print(F(",RSSI,"));
+  Serial.print(PacketRSSI);
+  Serial.println();
+
+ 
+
+
 }
 
