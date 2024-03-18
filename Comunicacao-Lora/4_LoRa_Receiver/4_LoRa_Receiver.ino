@@ -85,12 +85,6 @@ void packet_is_OK()
   RXpacketCount++;
 
   printElapsedTime();                              //print elapsed time to Serial Monitor
-  Serial.print(F("  "));
-  LT.printASCIIPacket(RXBUFFER, RXPacketL);        //print the packet as ASCII characters
-
-  localCRC = LT.CRCCCITT(RXBUFFER, RXPacketL, 0xFFFF);  //calculate the CRC, this is the external CRC calculation of the RXBUFFER
-  Serial.print(F(",CRC,"));                        //contents, not the LoRa device internal CRC
-  Serial.print(localCRC, HEX);
   Serial.print(F(",RSSI,"));
   Serial.print(PacketRSSI);
   Serial.print(F("dBm,SNR,"));
@@ -103,6 +97,9 @@ void packet_is_OK()
   Serial.print(errors);
   Serial.print(F(",IRQreg,"));
   Serial.print(IRQStatus, HEX);
+
+  led_Flash(2, 1000);  
+
 }
 
 
@@ -176,8 +173,8 @@ void setup()
   Serial.println(F(__DATE__));
   Serial.println(F(Program_Version));
   Serial.println();
-  Serial.println(F("Iniciando comunicação - Receptor");
-  Serial.println(F("Lasid UFBA");
+  Serial.println(F("Iniciando comunicação - Receptor"));
+  Serial.println(F("Lasid UFBA"));
   Serial.println();
 
   if (BUZZER > 0)
@@ -199,7 +196,7 @@ void setup()
   {
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);
-    delay(1000);
+    delay(100);
   }
   else
   {
@@ -243,7 +240,5 @@ void setup()
   Serial.println(RXBUFFER_SIZE);
   Serial.println();
 
-  Serial.print(F(",RSSI,"));
-  Serial.print(PacketRSSI);
-  Serial.println();
+
 }

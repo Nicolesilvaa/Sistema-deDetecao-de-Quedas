@@ -23,20 +23,23 @@
 
 #define Program_Version "Teste_NicoleSilva"
 
+  
 #include <SPI.h>                                               //the SX128X device is SPI based so load the SPI library                                         
 #include <SX128XLT.h>                                          //include the appropriate library  
-#include "Settings.h"                                          //include the setiings file, frequencies, LoRa settings etc   
-
+#include "Settings.h"                                       //include the setiings file, frequencies, LoRa settings etc   
+                                        
 SX128XLT LT;                                                   //create a library class instance called LT
 
 uint8_t TXPacketL;
 uint32_t TXPacketCount, startmS, endmS;
 
+uint8_t buff[] = "Experimento  Lora";
+uint16_t tempo_transmissao[200];
 
-uint8_t buff[] = "Experimento transmissão Lora";
+using namespace std;
 
-void loop()
-{
+void loop(){
+
   Serial.print(TXpower);                                       //print the transmit power defined
   Serial.print(F("dBm "));
   Serial.print(F("Packet> "));
@@ -55,34 +58,70 @@ void loop()
     TXPacketCount++;
     packet_is_OK();
   }
+
   else
   {
     packet_is_Error();                                 //transmit packet returned 0, there was an error
   }
 
+  
   digitalWrite(LED1, LOW);
   Serial.println();
-  delay(packet_delay);                                 //have a delay between packets
+  delay(packet_delay);   //have a delay between packets
 }
 
 
-void packet_is_OK()
-{
+void packet_is_OK(){
+
   //if here packet has been sent OK
   uint16_t localCRC;
+  uint16_t transmitTime;
 
+  transmitTime = endmS - startmS;
+
+  //print total of packets sent OK (1000 packets)
   Serial.print(F("  BytesSent,"));
   Serial.print(TXPacketL);                             //print transmitted packet length
   localCRC = LT.CRCCCITT(buff, TXPacketL, 0xFFFF);
   Serial.print(F("  CRC,"));
   Serial.print(localCRC, HEX);                              //print CRC of sent packet
   Serial.print(F("  TransmitTime,"));
-  Serial.print(endmS - startmS);                       //print transmit time of packet
+  Serial.print(transmitTime);                       //print transmit time of packet
   Serial.print(F("mS"));
   Serial.print(F("  PacketsSent,"));
-  Serial.print(TXPacketCount);                         //print total of packets sent OK
-}
+  Serial.println(TXPacketCount);  
+    
+  led_Flash(2, 1000);
 
+//Armazenando tempo das mansagens - 200 amostras
+  if(TXPacketCount < 200){
+
+    tempo_transmissao[TXPacketCount] = transmitTime;
+
+  }
+
+  int tam = sizeof(tempo_transmissao);
+  int somaTime = 0;
+  for(int i = 0; i < tam; i++){
+
+    somaTime += tempo_transmissao[i];
+  }
+
+  if(TXPacketCount == 200){
+
+    //Calculando tempo médio mensagem
+    uint16_t  tempoMedio = somaTime/200;
+
+    Serial.print("Tempo total da transmissão de 200 mensagens = ");
+    Serial.print(somaTime);
+    Serial.println(" mS");
+    Serial.print("Tempo médio de transmissão de 200 mansagens = ");
+    Serial.print((tempoMedio));
+    Serial.print(" mS");
+
+  }
+    
+}
 
 void packet_is_Error()
 {
@@ -98,8 +137,7 @@ void packet_is_Error()
 }
 
 
-void led_Flash(uint16_t flashes, uint16_t delaymS)
-{
+void led_Flash(uint16_t flashes, uint16_t delaymS){
   uint16_t index;
   for (index = 1; index <= flashes; index++)
   {
@@ -110,17 +148,9 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
   }
 }
 
-//Calculando a taxa nominal de bits, ou seja, quantidade de dados por seg que é transmitido (bits/segundo)
-void taxa_nominal(){
 
-  uint16_t tb = ((2^SpreadingFactor)/406250)
-  return tb;
- 
-}
+void setup(){
 
-
-void setup()
-{
   pinMode(LED1, OUTPUT);                                   //setup pin as output for indicator LED
   led_Flash(2, 125);                                       //two quick LED flashes to indicate program start
 
@@ -131,8 +161,8 @@ void setup()
   Serial.println(F(__DATE__));
   Serial.println(F(Program_Version));
   Serial.println();
-  Serial.println(F("Iniciando comunicação - Transmissor");
-    Serial.println(F("Lasid UFBA");
+  Serial.println(F("Iniciando comunicacão - Transmissor"));
+  Serial.println(F("Lasid UFBA"));
 
   SPI.begin();
 
@@ -182,18 +212,9 @@ void setup()
   Serial.println();
   Serial.println();
 
-  LT.printRegisters(0x900, 0x9FF);                       //print contents of device registers
-  Serial.println();
-  Serial.println();
-
-  Serial.print(F("Transmissão Realizada"));
-  Serial.println();
-
-  Serial.print(F(",RSSI,"));
-  Serial.print(PacketRSSI);
-  Serial.println();
-
- 
+  uint16_t taxaNominal = ((2 ^ 7)/406250);
+  Serial.println("Taxa nominal = ");
+  Serial.print(taxaNominal);
 
 
 }
