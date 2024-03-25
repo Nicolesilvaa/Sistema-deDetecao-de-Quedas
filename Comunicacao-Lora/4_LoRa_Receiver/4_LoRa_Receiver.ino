@@ -40,48 +40,49 @@ uint8_t RXBUFFER[RXBUFFER_SIZE];                 //create the buffer that receiv
 uint8_t RXPacketL;                               //stores length of packet received
 int16_t  PacketRSSI;                             //stores RSSI of received packet
 int8_t  PacketSNR;                               //stores signal to noise ratio of received packet
+uint16_t media_RSSI[200];
 
+void loop(){
 
-void loop()
-{
   RXPacketL = LT.receive(RXBUFFER, RXBUFFER_SIZE, 60000, WAIT_RX); //wait for a packet to arrive with 60seconds (60000mS) timeout
 
   digitalWrite(LED1, HIGH);                      //something has happened
 
-  if (BUZZER > 0)                                //turn buzzer on
-  {
+  if (BUZZER > 0){                             //turn buzzer on
     digitalWrite(BUZZER, HIGH);
   }
 
   PacketRSSI = LT.readPacketRSSI();              //read the recived RSSI value
   PacketSNR = LT.readPacketSNR();                //read the received SNR value
 
-  if (RXPacketL == 0)                            //if the LT.receive() function detects an error, RXpacketL == 0
-  {
+  if(RXPacketL == 0){  
+    
     packet_is_Error();
-  }
-  else
-  {
+  
+  }                        //if the LT.receive() function detects an error, RXpacketL == 0
+  else{
+    
     packet_is_OK();
+  
   }
 
-  if (BUZZER > 0)
-  {
-    digitalWrite(BUZZER, LOW);                    //buzzer off
-  }
+  if (BUZZER > 0){
+    
+    digitalWrite(BUZZER, LOW);
+  
+  }                    //buzzer off
 
-  digitalWrite(LED1, LOW);                        //LED off
-
+  digitalWrite(LED1, LOW);                                        //LED off
   Serial.println();
+
 }
 
 
-void packet_is_OK()
-{
+void packet_is_OK(){
+
   uint16_t IRQStatus, localCRC;
 
   IRQStatus = LT.readIrqStatus();                  //read the LoRa device IRQ status register
-
   RXpacketCount++;
 
   printElapsedTime();                              //print elapsed time to Serial Monitor
@@ -100,20 +101,49 @@ void packet_is_OK()
 
   led_Flash(2, 1000);  
 
+//Armazenando média RSSI(Intensidade de sinal) - 200 amostras
+
+  if(RXpacketCount < 200){
+    
+    media_RSSI[RXpacketCount] = PacketRSSI;
+    
+  }
+
+  int tam = sizeof(media_RSSI),somaRSSI = 0;
+
+  for(int i = 0; i < tam; i++){somaRSSI += media_RSSI[i];}
+
+  if(RXpacketCount == 200){
+
+    //Calculando RSSI médio mensagem
+    uint16_t  mediaRSSI = somaRSSI/200;
+
+    Serial.println();
+    Serial.print("Intensidade total da recepção de 200 mensagens = ");
+    Serial.print(somaRSSI);
+    Serial.println(" dBm");
+    Serial.print("Intensidadde média de transmissão de 200 mansagens = ");
+    Serial.print((mediaRSSI));
+    Serial.print(" dBm");
+    Serial.println();
+
+  }
+    
+
 }
 
 
-void packet_is_Error()
-{
+void packet_is_Error(){
+
   uint16_t IRQStatus;
   IRQStatus = LT.readIrqStatus();                   //read the LoRa device IRQ status register
-
   printElapsedTime();                               //print elapsed time to Serial Monitor
 
-  if (IRQStatus & IRQ_RX_TIMEOUT)                   //check for an RX timeout
-  {
+  if (IRQStatus & IRQ_RX_TIMEOUT){                 //check for an RX timeout
+
     Serial.print(F(" RXTimeout"));
   }
+
   else
   {
     errors++;
@@ -138,8 +168,8 @@ void packet_is_Error()
 }
 
 
-void printElapsedTime()
-{
+void printElapsedTime(){
+
   float seconds;
   seconds = millis() / 1000;
   Serial.print(seconds, 0);
@@ -147,8 +177,8 @@ void printElapsedTime()
 }
 
 
-void led_Flash(uint16_t flashes, uint16_t delaymS)
-{
+void led_Flash(uint16_t flashes, uint16_t delaymS){
+
   uint16_t index;
 
   for (index = 1; index <= flashes; index++)
@@ -161,8 +191,8 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 }
 
 
-void setup()
-{
+void setup(){
+
   pinMode(LED1, OUTPUT);                        //setup pin as output for indicator LED
   led_Flash(2, 125);                            //two quick LED flashes to indicate program start
 
@@ -177,8 +207,8 @@ void setup()
   Serial.println(F("Lasid UFBA"));
   Serial.println();
 
-  if (BUZZER > 0)
-  {
+  if (BUZZER > 0){
+
     pinMode(BUZZER, OUTPUT);
     digitalWrite(BUZZER, HIGH);
     delay(50);
@@ -192,17 +222,18 @@ void setup()
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX_EN, TX_EN, LORA_DEVICE))
-  {
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX_EN, TX_EN, LORA_DEVICE)){
+
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);
     delay(100);
   }
-  else
-  {
+
+  else{
+
     Serial.println(F("No device responding"));
-    while (1)
-    {
+    while (1){
+
       led_Flash(50, 50);                                       //long fast speed LED flash indicates device error
     }
   }
@@ -227,14 +258,6 @@ void setup()
   //LT.setLowPowerRX();
   //***************************************************************************************************
 
-
-  Serial.println();
-  LT.printModemSettings();                                     //reads and prints the configured LoRa settings, useful check
-  Serial.println();
-  Serial.println();
-  LT.printRegisters(0x900, 0x9FF);                             //print contents of device registers
-  Serial.println();
-  Serial.println();
 
   Serial.print(F("Dados Recebdidos - RXBUFFER_SIZE "));
   Serial.println(RXBUFFER_SIZE);

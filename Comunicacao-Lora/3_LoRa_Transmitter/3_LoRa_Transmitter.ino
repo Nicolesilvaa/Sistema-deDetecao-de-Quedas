@@ -51,18 +51,15 @@ void loop(){
   LT.printASCIIPacket(buff, TXPacketL);                        //print the buffer (the sent packet) as ASCII
 
   digitalWrite(LED1, HIGH);
-  startmS =  millis();                                         //start transmit timer
-  if (LT.transmit(buff, TXPacketL, 10000, TXpower, WAIT_TX))   //will return packet length sent if OK, otherwise 0 if transmit, timeout 10 seconds
-  {
+  startmS =  millis();                                           //start transmit timer
+
+  if (LT.transmit(buff, TXPacketL, 10000, TXpower, WAIT_TX)){  //will return packet length sent if OK, otherwise 0 if transmit, timeout 10 seconds{
     endmS = millis();                                          //packet sent, note end time
     TXPacketCount++;
     packet_is_OK();
   }
 
-  else
-  {
-    packet_is_Error();                                 //transmit packet returned 0, there was an error
-  }
+  else{packet_is_Error();}                              //transmit packet returned 0, there was an error
 
   
   digitalWrite(LED1, LOW);
@@ -94,14 +91,10 @@ void packet_is_OK(){
   led_Flash(2, 1000);
 
 //Armazenando tempo das mansagens - 200 amostras
-  if(TXPacketCount < 200){
+  if(TXPacketCount < 200){tempo_transmissao[TXPacketCount] = transmitTime;}
 
-    tempo_transmissao[TXPacketCount] = transmitTime;
+  int tam = sizeof(tempo_transmissao),somaTime = 0;
 
-  }
-
-  int tam = sizeof(tempo_transmissao);
-  int somaTime = 0;
   for(int i = 0; i < tam; i++){
 
     somaTime += tempo_transmissao[i];
@@ -112,19 +105,22 @@ void packet_is_OK(){
     //Calculando tempo médio mensagem
     uint16_t  tempoMedio = somaTime/200;
 
+    Serial.println();
     Serial.print("Tempo total da transmissão de 200 mensagens = ");
     Serial.print(somaTime);
     Serial.println(" mS");
     Serial.print("Tempo médio de transmissão de 200 mansagens = ");
-    Serial.print((tempoMedio));
-    Serial.print(" mS");
+    Serial.print((tempoMedio/1000) % 60); //Convertendo para segundos
+    Serial.print(" s");
+    Serial.println();
 
+//Acrescentar conversão para minutos e horas
   }
     
 }
 
-void packet_is_Error()
-{
+void packet_is_Error(){
+
   //if here there was an error transmitting packet
   uint16_t IRQStatus;
   IRQStatus = LT.readIrqStatus();                  //read the the interrupt register
@@ -135,9 +131,11 @@ void packet_is_Error()
   Serial.print(IRQStatus, HEX);                    //print IRQ status
   LT.printIrqStatus();                             //prints the text of which IRQs set
 }
+ 
 
 
 void led_Flash(uint16_t flashes, uint16_t delaymS){
+
   uint16_t index;
   for (index = 1; index <= flashes; index++)
   {
@@ -146,6 +144,7 @@ void led_Flash(uint16_t flashes, uint16_t delaymS){
     digitalWrite(LED1, LOW);
     delay(delaymS);
   }
+
 }
 
 
@@ -172,25 +171,29 @@ void setup(){
 
   //setup hardware pins used by device, then check if device is found
 
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX_EN, TX_EN, LORA_DEVICE))
-  {
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX_EN, TX_EN, LORA_DEVICE)){
+
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);                                   //two further quick LED flashes to indicate device found
     delay(1000);
+
   }
-  else
-  {
+
+  else{
+
     Serial.println(F("No device responding"));
     while (1)
     {
       led_Flash(50, 50);                                 //long fast speed LED flash indicates device error
     }
+
   }
 
   //The function call list below shows the complete setup for the LoRa device using the information defined in the
   //Settings.h file.
   //The 'Setup LoRa device' list below can be replaced with a single function call;
   //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate);
+
 
   //***************************************************************************************************
   //Setup LoRa device
@@ -204,17 +207,17 @@ void setup(){
   LT.setPacketParams(12, LORA_PACKET_VARIABLE_LENGTH, 255, LORA_CRC_ON, LORA_IQ_NORMAL, 0, 0);
   LT.setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);
   LT.setHighSensitivity();
-  //LT.setLowPowerRX();
-  //***************************************************************************************************
 
+  //LT.setLowPowerTX();
+  //***************************************************************************************************
+  Serial.println();
+  Serial.print(F("Dados Transmitidos - Settings "));
   Serial.println();
   LT.printModemSettings();                               //reads and prints the configured LoRa settings, useful check
   Serial.println();
-  Serial.println();
+  
 
-  uint16_t taxaNominal = ((2 ^ 7)/406250);
-  Serial.println("Taxa nominal = ");
-  Serial.print(taxaNominal);
+  
 
 
 }
