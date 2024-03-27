@@ -34,7 +34,7 @@ uint8_t TXPacketL;
 uint32_t TXPacketCount, startmS, endmS;
 
 uint8_t buff[] = "Experimento  Lora";
-uint16_t tempo_transmissao[200];
+uint32_t tempo_transmissao[200];
 
 using namespace std;
 
@@ -72,7 +72,7 @@ void packet_is_OK(){
 
   //if here packet has been sent OK
   uint16_t localCRC;
-  uint16_t transmitTime;
+  uint32_t transmitTime;
 
   transmitTime = endmS - startmS;
 
@@ -93,7 +93,8 @@ void packet_is_OK(){
 //Armazenando tempo das mansagens - 200 amostras
   if(TXPacketCount < 200){tempo_transmissao[TXPacketCount] = transmitTime;}
 
-  int tam = sizeof(tempo_transmissao),somaTime = 0;
+  int tam = sizeof(tempo_transmissao);
+  uint32_t somaTime = 0;                                //A atribuição de um unsigned int a um int também pode resultar em overflow e portanto é feita módulo UINT_MAX + 1. Ocasionando em um valor negativo.
 
   for(int i = 0; i < tam; i++){
 
@@ -103,7 +104,7 @@ void packet_is_OK(){
   if(TXPacketCount == 200){
 
     //Calculando tempo médio mensagem
-    uint16_t  tempoMedio = somaTime/200;
+    uint32_t  tempoMedio = somaTime/200;
 
     Serial.println();
     Serial.print("Tempo total da transmissão de 200 mensagens = ");
