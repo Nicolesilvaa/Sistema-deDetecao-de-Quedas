@@ -109,7 +109,8 @@ void packet_is_OK(){
     
   }
 
-  int tam = sizeof(media_RSSI),somaRSSI = 0;
+  int tam = sizeof(media_RSSI);
+  uint16_t somaRSSI = 0;
 
   for(int i = 0; i < tam; i++){somaRSSI += media_RSSI[i];}
 
