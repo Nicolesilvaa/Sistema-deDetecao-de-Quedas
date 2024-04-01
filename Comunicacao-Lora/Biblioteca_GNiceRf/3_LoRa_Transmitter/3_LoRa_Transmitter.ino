@@ -64,7 +64,7 @@ void loop(){
   
   digitalWrite(LED1, LOW);
   Serial.println();
-  delay(packet_delay);   //have a delay between packets
+  delay(40);   //have a delay between packets
 }
 
 
@@ -88,7 +88,7 @@ void packet_is_OK(){
   Serial.print(F("  PacketsSent,"));
   Serial.println(TXPacketCount);  
     
-  led_Flash(2, 1000);
+  led_Flash(2, 20);
 
 //Armazenando tempo das mansagens - 200 amostras
   if(TXPacketCount < 200){tempo_transmissao[TXPacketCount] = transmitTime;}
@@ -111,7 +111,7 @@ void packet_is_OK(){
     Serial.print(somaTime);
     Serial.println(" mS");
     Serial.print("Tempo médio de transmissão de 200 mansagens = ");
-    Serial.print((tempoMedio/1000) % 60); //Convertendo para segundos
+    Serial.print((tempoMedio/1000)%60); //Convertendo para segundos
     Serial.print(" s");
     Serial.println();
 
@@ -175,8 +175,8 @@ void setup(){
   if (LT.begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX_EN, TX_EN, LORA_DEVICE)){
 
     Serial.println(F("LoRa Device found"));
-    led_Flash(2, 125);                                   //two further quick LED flashes to indicate device found
-    delay(1000);
+    //led_Flash(2, 125);                                   //two further quick LED flashes to indicate device found
+    delay(20);
 
   }
 

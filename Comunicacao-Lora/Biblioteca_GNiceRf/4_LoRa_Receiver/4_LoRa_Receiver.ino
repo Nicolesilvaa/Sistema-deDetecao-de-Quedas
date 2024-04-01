@@ -99,7 +99,7 @@ void packet_is_OK(){
   Serial.print(F(",IRQreg,"));
   Serial.print(IRQStatus, HEX);
 
-  led_Flash(2, 1000);  
+  led_Flash(2, 20);  
 
 //Armazenando média RSSI(Intensidade de sinal) - 200 amostras
 
@@ -226,8 +226,8 @@ void setup(){
   if (LT.begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX_EN, TX_EN, LORA_DEVICE)){
 
     Serial.println(F("LoRa Device found"));
-    led_Flash(2, 125);
-    delay(100);
+    //led_Flash(2, 1);
+    delay(20);
   }
 
   else{
