@@ -28,9 +28,9 @@ Usage:
 #include <SX1280.h>
 
 #define RF_FREQUENCY                                2410000000 // Hz
-
 /* if compile the code for slave, uncommand the below line*/
 #define		MASTER
+
 
 SX1280 LoRa1280;	//define a object of class SX1280.
 loRa_Para_t	lora_para;	//define a struct to hold lora parameters.
@@ -51,10 +51,19 @@ uint16_t rx_size = 0;
 
 uint8_t val;
 uint8_t state;
+uint8_t PacketStatus;
+
+//SLAVE
+uint8_t RXPacketL; //stores length of packet received
+
+//MASTER
+uint8_t TXParams;
 
 
-void setup(void) 
-{
+
+
+void setup(void) {
+
 	bool temp;
 	Serial.begin(9600);	//UART Init
 	
@@ -67,45 +76,60 @@ void setup(void)
 
 	temp = LoRa1280.Init(&lora_para);
 	
-	if(0 == temp)
-	{
+	if(0 == temp){
+
 		Serial.println("Init fail!");
 	}
+
 	#ifdef SLAVE
+
 		LoRa1280.RxBufferInit(rx_buf,&rx_size);
-                LoRa1280.RxInit();    // wait for packet from master
+    LoRa1280.RxInit();    // wait for packet from master
 		Serial.println("SX1280 demo slave!");
+
 	#else
 		Serial.println("SX1280 demo master!");
-	#endif
-}
 
-void loop(void) 
-{
+	#endif
+  }
+
+void loop(void) {
+
+  PacketStatus = LoRa1280.GetPacketStatus(); //RSSI and SNR
+  Serial.print(" RSSI and SNR = ");
+  Serial.println(PacketStatus);
+
 #ifdef SLAVE
 
 	state = LoRa1280.WaitForIRQ_RxDone();
-	if(state)    // wait for RxDone interrupt
-	{
+	if(state){    // wait for RxDone interrupt
+
+    RxPacketL = LoRa1280.
 		rx_cnt++;
-		Serial.print("rx_cnt = ");
+		Serial.print("Receptor - Contador = ");
 		Serial.print(rx_cnt);
-		Serial.print(" data:");
+		Serial.print(" Data:");
 		Serial.write(rx_buf,rx_size);    // print out the receive data
 		Serial.println();
+    Serial.println("Length of packet received ");
+    Serial.println(RXPacketL);
+    
 	}
 	
 #else
 
-	val=Serial.read();  // please make sure serial is OK befor runing this code
+	val = Serial.read();  // please make sure serial is OK befor runing this code
     
 	LoRa1280.TxPacket(tx_buf,sizeof(tx_buf));
 	state = LoRa1280.WaitForIRQ_TxDone();
-	if(state)
-	{
+	if(state){
+
 		tx_cnt++;
-		Serial.print("tx_cnt = ");
+		Serial.print("Transmissor - Contador = ");
 		Serial.println(tx_cnt);
+    Serial.print("Parametros Transmisão - Potência e Tempo de transmissão");
+    Serial.print(TXParams);
+
 	}
     delay(1000);
 	

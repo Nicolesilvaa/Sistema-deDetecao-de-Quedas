@@ -32,6 +32,6 @@ const uint8_t Bandwidth = LORA_BW_0200;    //LoRa bandwidth
 const uint8_t SpreadingFactor = LORA_SF12;  //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;      //LoRa coding rate
 
-const int8_t TXpower = 10;  //Power for transmissions in dBm
+const int8_t TXpower = 13;  //Power for transmissions in dBm
 
 const uint16_t packet_delay = 1000;  //mS delay between packets
