@@ -110,7 +110,7 @@ void packet_is_OK(){
     Serial.print("Tempo total da transmissão de 200 mensagens = ");
     Serial.print(somaTime);
     Serial.println(" mS");
-    Serial.print("Tempo médio de transmissão de 200 mansagens = ");
+    Serial.print("Tempo médio de transmissão de 200 mensagens = ");
     Serial.print((tempoMedio/1000)%60); //Convertendo para segundos
     Serial.print(" s");
     Serial.println();

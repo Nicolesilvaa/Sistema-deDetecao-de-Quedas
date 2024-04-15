@@ -105,14 +105,14 @@ void packet_is_OK(){
 
   if(RXpacketCount < 200){
     
-    media_RSSI[RXpacketCount] = PacketRSSI;
+    arm_RSSI[RXpacketCount] = PacketRSSI;
     
   }
 
   int tam = sizeof(media_RSSI);
   uint16_t somaRSSI = 0;
 
-  for(int i = 0; i < tam; i++){somaRSSI += media_RSSI[i];}
+  for(int i = 0; i < tam; i++){somaRSSI += arm_RSSI[i];}
 
   if(RXpacketCount == 200){
 
@@ -123,14 +123,13 @@ void packet_is_OK(){
     Serial.print("Intensidade total da recepção de 200 mensagens = ");
     Serial.print(somaRSSI);
     Serial.println(" dBm");
-    Serial.print("Intensidadde média de transmissão de 200 mansagens = ");
+    Serial.print("Intensidadde média de transmissão de 200 mensagens = ");
     Serial.print((mediaRSSI));
     Serial.print(" dBm");
     Serial.println();
 
   }
     
-
 }
 
 
