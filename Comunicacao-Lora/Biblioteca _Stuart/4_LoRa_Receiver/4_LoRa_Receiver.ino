@@ -41,6 +41,7 @@ uint8_t RXPacketL;                               //stores length of packet recei
 int16_t  PacketRSSI;                             //stores RSSI of received packet
 int8_t  PacketSNR;                               //stores signal to noise ratio of received packet
 uint16_t media_RSSI[200];
+uint16_t arm_RSSI
 
 void loop(){
 
