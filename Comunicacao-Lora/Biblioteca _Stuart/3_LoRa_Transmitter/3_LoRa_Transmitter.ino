@@ -34,119 +34,6 @@ uint8_t TXPacketL;
 uint32_t TXPacketCount, startmS, endmS;
 
 uint8_t buff[] = "Experimento  Lora";
-uint32_t tempo_transmissao[200];
-
-using namespace std;
-
-void loop(){
-
-  Serial.print(TXpower);                                       //print the transmit power defined
-  Serial.print(F("dBm "));
-  Serial.print(F("Packet> "));
-  Serial.flush();
-
-  TXPacketL = sizeof(buff);                                    //set TXPacketL to length of array
-  buff[TXPacketL - 1] = '*';                                   //replace null character at buffer end so its visible on reciver
-
-  LT.printASCIIPacket(buff, TXPacketL);                        //print the buffer (the sent packet) as ASCII
-
-  digitalWrite(LED1, HIGH);
-  startmS =  millis();                                           //start transmit timer
-
-  if (LT.transmit(buff, TXPacketL, 10000, TXpower, WAIT_TX)){  //will return packet length sent if OK, otherwise 0 if transmit, timeout 10 seconds{
-    endmS = millis();                                          //packet sent, note end time
-    TXPacketCount++;
-    packet_is_OK();
-  }
-
-  else{packet_is_Error();}                              //transmit packet returned 0, there was an error
-
-  
-  digitalWrite(LED1, LOW);
-  Serial.println();
-  delay(40);   //have a delay between packets
-}
-
-
-void packet_is_OK(){
-
-  //if here packet has been sent OK
-  uint16_t localCRC;
-  uint32_t transmitTime;
-
-  transmitTime = endmS - startmS;
-
-  //print total of packets sent OK (1000 packets)
-  Serial.print(F("  BytesSent,"));
-  Serial.print(TXPacketL);                             //print transmitted packet length
-  localCRC = LT.CRCCCITT(buff, TXPacketL, 0xFFFF);
-  Serial.print(F("  CRC,"));
-  Serial.print(localCRC, HEX);                              //print CRC of sent packet
-  Serial.print(F("  TransmitTime,"));
-  Serial.print(transmitTime);                       //print transmit time of packet
-  Serial.print(F("mS"));
-  Serial.print(F("  PacketsSent,"));
-  Serial.println(TXPacketCount);  
-    
-  led_Flash(2, 20);
-
-//Armazenando tempo das mansagens - 200 amostras
-  if(TXPacketCount < 200){tempo_transmissao[TXPacketCount] = transmitTime;}
-
-  int tam = sizeof(tempo_transmissao);
-  uint32_t somaTime = 0;                                //A atribuição de um unsigned int a um int também pode resultar em overflow e portanto é feita módulo UINT_MAX + 1. Ocasionando em um valor negativo.
-
-  for(int i = 0; i < tam; i++){
-
-    somaTime += tempo_transmissao[i];
-  }
-
-  if(TXPacketCount == 200){
-
-    //Calculando tempo médio mensagem
-    uint32_t  tempoMedio = somaTime/200;
-
-    Serial.println();
-    Serial.print("Tempo total da transmissão de 200 mensagens = ");
-    Serial.print(somaTime);
-    Serial.println(" mS");
-    Serial.print("Tempo médio de transmissão de 200 mensagens = ");
-    Serial.print((tempoMedio/1000)%60); //Convertendo para segundos
-    Serial.print(" s");
-    Serial.println();
-
-//Acrescentar conversão para minutos e horas
-  }
-    
-}
-
-void packet_is_Error(){
-
-  //if here there was an error transmitting packet
-  uint16_t IRQStatus;
-  IRQStatus = LT.readIrqStatus();                  //read the the interrupt register
-  Serial.print(F(" SendError,"));
-  Serial.print(F("Length,"));
-  Serial.print(TXPacketL);                         //print transmitted packet length
-  Serial.print(F(",IRQreg,"));
-  Serial.print(IRQStatus, HEX);                    //print IRQ status
-  LT.printIrqStatus();                             //prints the text of which IRQs set
-}
- 
-
-
-void led_Flash(uint16_t flashes, uint16_t delaymS){
-
-  uint16_t index;
-  for (index = 1; index <= flashes; index++)
-  {
-    digitalWrite(LED1, HIGH);
-    delay(delaymS);
-    digitalWrite(LED1, LOW);
-    delay(delaymS);
-  }
-
-}
 
 
 void setup(){
@@ -193,7 +80,7 @@ void setup(){
   //The function call list below shows the complete setup for the LoRa device using the information defined in the
   //Settings.h file.
   //The 'Setup LoRa device' list below can be replaced with a single function call;
-  //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate);
+  //LT.setupLoRa(Frequency, Offset, SF, Bandwidth, CodeRate);
 
 
   //***************************************************************************************************
@@ -204,7 +91,7 @@ void setup(){
   LT.setPacketType(PACKET_TYPE_LORA);
   LT.setRfFrequency(Frequency, Offset);
   LT.setBufferBaseAddress(0, 0);
-  LT.setModulationParams(SpreadingFactor, Bandwidth, CodeRate);
+  LT.setModulationParams(SF, Bandwidth, CodeRate);
   LT.setPacketParams(12, LORA_PACKET_VARIABLE_LENGTH, 255, LORA_CRC_ON, LORA_IQ_NORMAL, 0, 0);
   LT.setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);
   LT.setHighSensitivity();
@@ -216,10 +103,126 @@ void setup(){
   Serial.println();
   LT.printModemSettings();                               //reads and prints the configured LoRa settings, useful check
   Serial.println();
-  
+
+}
+
+
+void loop(){
+
+  Serial.print(TXpower);                                       //print the transmit power defined
+  Serial.print(F("dBm "));
+  Serial.print(F("Packet> "));
+  Serial.flush();
+
+  TXPacketL = sizeof(buff);                                    //set TXPacketL to length of array
+  buff[TXPacketL - 1] = '*';                                   //replace null character at buffer end so its visible on reciver
+
+  LT.printASCIIPacket(buff, TXPacketL);                        //print the buffer (the sent packet) as ASCII
+
+  digitalWrite(LED1, HIGH);
+  startmS =  millis();                                           //start transmit timer
+
+  if (LT.transmit(buff, TXPacketL, 10000, TXpower, WAIT_TX)){  //will return packet length sent if OK, otherwise 0 if transmit, timeout 10 seconds{
+    endmS = millis();                                          //packet sent, note end time
+    TXPacketCount++;
+    packet_is_OK();
+  }
+
+  else{packet_is_Error();}                              //transmit packet returned 0, there was an error
 
   
+  digitalWrite(LED1, LOW);
+  Serial.println();
+  delay(40);   //have a delay between packets
+}
 
+
+void packet_is_OK(){
+//if here packet has been sent OK
+
+  uint32_t somaTime = 0; 
+
+  while( TXPacketCount){
+  
+  if(TXPacketCount < 200){
+
+    uint16_t localCRC;
+    uint32_t transmitTime;
+
+    transmitTime = endmS - startmS;
+
+    //print total of packets sent OK (1000 packets)
+    Serial.print(F("  BytesSent,"));
+    Serial.print(TXPacketL);                             //print transmitted packet length
+    localCRC = LT.CRCCCITT(buff, TXPacketL, 0xFFFF);
+    Serial.print(F("  CRC,"));
+    Serial.print(localCRC, HEX);                              //print CRC of sent packet
+    Serial.print(F("  TransmitTime,"));
+    Serial.print(transmitTime);                       //print transmit time of packet
+    Serial.print(F("mS"));
+    Serial.print(F("  PacketsSent,"));
+    Serial.println(TXPacketCount);  
+      
+    led_Flash(2, 20);
+
+    //Armazenando tempo das mansagens - 200 amostras
+    somaTime += transmitTime;
+  }
+
+  else{break;} 
+
+   TXPacketCount++; 
+
+
+  }
+
+  if(TXPacketCount == 200){
+
+  //Calculando tempo médio mensagem
+    uint32_t  tempoMedio = somaTime/200;
+
+    Serial.println();
+    Serial.print("Tempo total da transmissão de 200 mensagens = ");
+    Serial.print(somaTime);
+    Serial.println(" mS");
+    Serial.print("Tempo médio de transmissão de 200 mensagens = ");
+    Serial.print((tempoMedio/1000)%60); //Convertendo para segundos
+    Serial.print(" s");
+    Serial.println();
+
+  }
+ 
+}
+
+void variationSF(uint8_t SF){}
+
+void variationTPower(){}
+
+void packet_is_Error(){
+
+  //if here there was an error transmitting packet
+  uint16_t IRQStatus;
+  IRQStatus = LT.readIrqStatus();                  //read the the interrupt register
+  Serial.print(F(" SendError,"));
+  Serial.print(F("Length,"));
+  Serial.print(TXPacketL);                         //print transmitted packet length
+  Serial.print(F(",IRQreg,"));
+  Serial.print(IRQStatus, HEX);                    //print IRQ status
+  LT.printIrqStatus();                             //prints the text of which IRQs set
+}
+ 
+
+
+void led_Flash(uint16_t flashes, uint16_t delaymS){
+
+  uint16_t index;
+  for (index = 1; index <= flashes; index++)
+  {
+    digitalWrite(LED1, HIGH);
+    delay(delaymS);
+    digitalWrite(LED1, LOW);
+    delay(delaymS);
+  }
 
 }
 
