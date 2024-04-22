@@ -185,7 +185,7 @@ void packet_is_Error(){
 
   uint32_t somaTime = 0;
 
-  //Calcula o tempo médio de envio de pacotes para cada intervalo de 200 envios e seus múltiplos.
+  //Calcula o tempo médio de envio de pacotes para cada intervalo de 200 envios.
   if(TXPacketCount % 200 != 0){
 
     somaTime += transmitTime; 

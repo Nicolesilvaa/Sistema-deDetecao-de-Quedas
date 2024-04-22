@@ -209,7 +209,8 @@ void packet_is_Error(){
 
 }
 
-// Cálcula o RSSI médio do envio de pacotes no intervalo de 200 envios e seus múltiplos
+// Calcula o RSSI médio de envio de pacotes para cada intervalo de 200 envios.
+
 void rssiMedio(uint32_t RXpacketCount){
 
   uint16_t somaRSSI = 0;
