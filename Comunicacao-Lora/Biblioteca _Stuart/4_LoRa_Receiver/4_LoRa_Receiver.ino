@@ -152,7 +152,6 @@ void loop(){
 
 void packet_is_OK(){
 
-  uint16_t somaRSSI = 0;
   int16_t IRQStatus, localCRC;
 
   IRQStatus = LT.readIrqStatus();                  //read the LoRa device IRQ status register
@@ -173,26 +172,7 @@ void packet_is_OK(){
   Serial.print(IRQStatus, HEX);
 
   led_Flash(2, 20);  
-
-  //Armazenando média RSSI(Intensidade de sinal) - 200 amostras
-  somaRSSI += PacketRSSI;
-  
-  if(RXpacketCount == 200){
-
-    //Calculando RSSI médio mensagem
-    uint16_t  mediaRSSI = somaRSSI/200;
-
-    Serial.println();
-    Serial.print("Intensidade total da recepção de 200 mensagens = ");
-    Serial.print(somaRSSI);
-    Serial.println(" dBm");
-    Serial.print("Intensidadde média de transmissão de 200 mensagens = ");
-    Serial.print((mediaRSSI));
-    Serial.print(" dBm");
-    Serial.println();    
-
-  }
-    
+  rssiMedio(RXpacketCount);  
      
 }
 
@@ -207,8 +187,7 @@ void packet_is_Error(){
     Serial.print(F(" RXTimeout"));
   }
 
-  else
-  {
+  else{
     errors++;
     Serial.print(F(" PacketError"));
     Serial.print(F(",RSSI,"));
@@ -230,6 +209,30 @@ void packet_is_Error(){
 
 }
 
+// Cálcula o RSSI médio do envio de pacotes no intervalo de 200 envios e seus múltiplos
+void rssiMedio(uint32_t RXpacketCount){
+
+  uint16_t somaRSSI = 0;
+  if(RXpacketCount % 200 != 0){
+
+    somaRSSI += PacketRSSI;
+
+  }else{
+
+    uint16_t  mediaRSSI = somaRSSI/200;
+
+    Serial.println();
+    Serial.print("Intensidade total da recepção de 200 mensagens = ");
+    Serial.print(somaRSSI);
+    Serial.println(" dBm");
+    Serial.print("Intensidadde média de transmissão de 200 mensagens = ");
+    Serial.print((mediaRSSI));
+    Serial.print(" dBm");
+    Serial.println();    
+
+  }
+}
+
 void printElapsedTime(){
 
   float seconds;
@@ -242,8 +245,8 @@ void led_Flash(uint16_t flashes, uint16_t delaymS){
 
   uint16_t index;
 
-  for (index = 1; index <= flashes; index++)
-  {
+  for (index = 1; index <= flashes; index++){
+    
     digitalWrite(LED1, HIGH);
     delay(delaymS);
     digitalWrite(LED1, LOW);

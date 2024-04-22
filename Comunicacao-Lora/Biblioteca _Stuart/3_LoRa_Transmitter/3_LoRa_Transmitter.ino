@@ -26,7 +26,9 @@
   
 #include <SPI.h>                                               //the SX128X device is SPI based so load the SPI library                                         
 #include <SX128XLT.h>                                          //include the appropriate library  
-#include "Settings.h"                                       //include the setiings file, frequencies, LoRa settings etc   
+#include "Settings.h"                                         //include the setiings file, frequencies, LoRa settings etc   
+
+                                                      
                                         
 SX128XLT LT;                                                   //create a library class instance called LT
 
@@ -126,9 +128,10 @@ void loop(){
     endmS = millis();                                          //packet sent, note end time
     TXPacketCount++;
     packet_is_OK();
-  }
-
-  else{packet_is_Error();}                              //transmit packet returned 0, there was an error
+  }else{
+    packet_is_Error();
+  
+  }                              //transmit packet returned 0, there was an error
 
   
   digitalWrite(LED1, LOW);
@@ -140,63 +143,29 @@ void loop(){
 void packet_is_OK(){
 //if here packet has been sent OK
 
-  uint32_t somaTime = 0; 
+  uint16_t localCRC;
+  uint32_t transmitTime;
 
-  while( TXPacketCount){
-  
-  if(TXPacketCount < 200){
+  transmitTime = endmS - startmS;
 
-    uint16_t localCRC;
-    uint32_t transmitTime;
-
-    transmitTime = endmS - startmS;
-
-    //print total of packets sent OK (1000 packets)
-    Serial.print(F("  BytesSent,"));
-    Serial.print(TXPacketL);                             //print transmitted packet length
-    localCRC = LT.CRCCCITT(buff, TXPacketL, 0xFFFF);
-    Serial.print(F("  CRC,"));
-    Serial.print(localCRC, HEX);                              //print CRC of sent packet
-    Serial.print(F("  TransmitTime,"));
-    Serial.print(transmitTime);                       //print transmit time of packet
-    Serial.print(F("mS"));
-    Serial.print(F("  PacketsSent,"));
-    Serial.println(TXPacketCount);  
-      
-    led_Flash(2, 20);
-
-    //Armazenando tempo das mansagens - 200 amostras
-    somaTime += transmitTime;
-  }
-
-  else{break;} 
-
-   TXPacketCount++; 
-
-
-  }
-
-  if(TXPacketCount == 200){
-
-  //Calculando tempo médio mensagem
-    uint32_t  tempoMedio = somaTime/200;
-
-    Serial.println();
-    Serial.print("Tempo total da transmissão de 200 mensagens = ");
-    Serial.print(somaTime);
-    Serial.println(" mS");
-    Serial.print("Tempo médio de transmissão de 200 mensagens = ");
-    Serial.print((tempoMedio/1000)%60); //Convertendo para segundos
-    Serial.print(" s");
-    Serial.println();
-
-  }
- 
+  //print total of packets sent OK (1000 packets)
+  Serial.print(F("  BytesSent,"));
+  Serial.print(TXPacketL);                             //print transmitted packet length
+  localCRC = LT.CRCCCITT(buff, TXPacketL, 0xFFFF);
+  Serial.print(F("  CRC,"));
+  Serial.print(localCRC, HEX);                              //print CRC of sent packet
+  Serial.print(F("  TransmitTime,"));
+  Serial.print(transmitTime);                       //print transmit time of packet
+  Serial.print(F("mS"));
+  Serial.print(F("  PacketsSent,"));
+  Serial.println(TXPacketCount);  
+    
+  led_Flash(2, 20);
+  tempoMedio(TXPacketCount,transmitTime);
+    
+   
 }
 
-void variationSF(uint8_t SF){}
-
-void variationTPower(){}
 
 void packet_is_Error(){
 
@@ -211,6 +180,31 @@ void packet_is_Error(){
   LT.printIrqStatus();                             //prints the text of which IRQs set
 }
  
+
+ void tempoMedio(uint32_t TXPacketCount, uint32_t transmitTime){
+
+  uint32_t somaTime = 0;
+
+  //Calcula o tempo médio de envio de pacotes para cada intervalo de 200 envios e seus múltiplos.
+  if(TXPacketCount % 200 != 0){
+
+    somaTime += transmitTime; 
+
+  }else{
+    
+    uint32_t  tempoMedio = somaTime/200;
+
+    Serial.println();
+    Serial.print("Tempo total da transmissão de 200 mensagens = ");
+    Serial.print(somaTime);
+    Serial.println(" mS");
+    Serial.print("Tempo médio de transmissão de 200 mensagens = ");
+    Serial.print((tempoMedio/1000)%60); //Convertendo para segundos
+    Serial.print(" s");
+    Serial.println();
+
+  }
+} 
 
 
 void led_Flash(uint16_t flashes, uint16_t delaymS){
