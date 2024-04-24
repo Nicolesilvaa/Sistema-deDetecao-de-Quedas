@@ -25,6 +25,8 @@
 
 **Orientadores**: Professor Dr. Raimundo Macêdo e Professor Me. Marcelo  Guimarães.
 
-**Colaboradores** : 
+**Autora**: 
 - ![Nicole Silva](https://github.com/Nicolesilvaa)
+
+**Colaboradores** : 
 - ![Lucas Perrone](https://github.com/LucasPerrone21)
