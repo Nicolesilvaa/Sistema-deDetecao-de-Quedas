@@ -1,17 +1,5 @@
-/*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 06/02/20
-
-  This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors.
-*******************************************************************************************************/
-
-//*******  Setup hardware pin definitions here ! ***************
-
-//These are the pin definitions for one of my own boards, the Easy Pro Mini,
-//be sure to change the definitions to match your own setup. Some pins such as DIO2,
-//DIO3, BUZZER may not be in used by this sketch so they do not need to be
-//connected and should be included and be set to -1.
-
+//Settings //***************************************************************************************************
+#define Program_Version "Teste_NicoleSilva"
 #define NSS 10
 #define RFBUSY 8
 #define NRESET 9
@@ -39,3 +27,4 @@ const int8_t TXpower = 13;                       //Power for transmissions in dB
 const uint16_t packet_delay = 1000;              //mS delay between packets
 
 #define RXBUFFER_SIZE 255                        //RX buffer size  
+ //**************************************************************************************************************

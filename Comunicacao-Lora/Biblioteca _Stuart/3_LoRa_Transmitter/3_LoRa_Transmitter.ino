@@ -1,35 +1,8 @@
-/*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 06/02/20
 
-  This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors.
-*******************************************************************************************************/
-
-
-/*******************************************************************************************************
-  Program Operation - This is a simple LoRa test transmitter. A packet containing ASCII text is sent
-  according to the frequency and LoRa settings specified in the 'Settings.h' file. The pins to access
-  the lora device need to be defined in the 'Settings.h' file also.
-
-  The details of the packet sent and any errors are shown on the Serial Monitor, together with the transmit
-  power used, the packet length and the CRC of the packet. The matching receive program, '4_LoRa_Receive'
-  can be used to check the packets are being sent correctly, the frequency and LoRa settings (in Settings.h)
-  must be the same for the Transmit and Receive program. Sample Serial Monitor output;
-
-  10dBm Packet> {packet contents*}  BytesSent,23  CRC,DAAB  TransmitTime,54mS  PacketsSent,1
-
-  Serial monitor baud rate is set at 9600
-*******************************************************************************************************/
-
-#define Program_Version "Teste_NicoleSilva"
-
-  
 #include <SPI.h>                                               //the SX128X device is SPI based so load the SPI library                                         
 #include <SX128XLT.h>                                          //include the appropriate library  
 #include "Settings.h"                                         //include the setiings file, frequencies, LoRa settings etc   
-
-                                                      
-                                        
+                                      
 SX128XLT LT;                                                   //create a library class instance called LT
 
 uint8_t TXPacketL;
@@ -68,7 +41,6 @@ void setup(){
     delay(20);
 
   }
-
   else{
 
     Serial.println(F("No device responding"));
@@ -76,7 +48,6 @@ void setup(){
     {
       led_Flash(50, 50);                                 //long fast speed LED flash indicates device error
     }
-
   }
 
   //The function call list below shows the complete setup for the LoRa device using the information defined in the
@@ -107,7 +78,6 @@ void setup(){
   Serial.println();
 
 }
-
 
 void loop(){
 
@@ -179,18 +149,14 @@ void packet_is_Error(){
   Serial.print(IRQStatus, HEX);                    //print IRQ status
   LT.printIrqStatus();                             //prints the text of which IRQs set
 }
- 
 
- void tempoMedio(uint32_t TXPacketCount, uint32_t transmitTime){
+void tempoMedio(uint32_t &TXPacketCount, uint32_t &transmitTime){
 
-  uint32_t somaTime = 0;
+  uint32_t somaTime;
+  somaTime += transmitTime;
 
   //Calcula o tempo médio de envio de pacotes para cada intervalo de 200 envios.
-  if(TXPacketCount % 200 != 0){
-
-    somaTime += transmitTime; 
-
-  }else{
+  if(TXPacketCount % 200 == 0){
     
     uint32_t  tempoMedio = somaTime/200;
 
@@ -199,19 +165,33 @@ void packet_is_Error(){
     Serial.print(somaTime);
     Serial.println(" mS");
     Serial.print("Tempo médio de transmissão de 200 mensagens = ");
-    Serial.print((tempoMedio/1000)%60); //Convertendo para segundos
-    Serial.print(" s");
+    Serial.print(tempoMedio/60000); //Convertendo para minutos
+    Serial.print("m ");
+    Serial.print(tempoMedio/1000); //Convertendo para segundos
+    Serial.print("s");
     Serial.println();
 
   }
 } 
 
+void variaSF_TXPower((uint32_t &TXPacketCount, uint8_t &SpreadingFactor[], uint8_t &SF){
+
+  int sizeSF = sizeof(SpreadingFactor);
+  int i = 0;
+
+  if(TXPacketCount % 200 == 0 && i < sizeSF){ 
+
+    SF = SpreadingFactor[i++];
+
+  }
+
+  return SF;
+}
 
 void led_Flash(uint16_t flashes, uint16_t delaymS){
 
   uint16_t index;
-  for (index = 1; index <= flashes; index++)
-  {
+  for (index = 1; index <= flashes; index++){
     digitalWrite(LED1, HIGH);
     delay(delaymS);
     digitalWrite(LED1, LOW);
@@ -219,4 +199,5 @@ void led_Flash(uint16_t flashes, uint16_t delaymS){
   }
 
 }
+
 
