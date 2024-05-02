@@ -1,6 +1,8 @@
  
 # Sistema de Detecção de Quedas - Projeto Lasid  <img src="https://github.com/Nicolesilvaa/Sistema-deDeteccao-de-Quedas/assets/68083480/17dd42b2-3e5a-410b-8e6c-08497254d56b" style="width:150px;height:60px; ">
 
+#### Status : Constante atualização ✅
+
 ## 📈  Sobre o projeto : 
 
 ###  📌 Objetivo :
@@ -25,6 +27,8 @@
 
 **Orientadores**: Professor Dr. Raimundo Macêdo e Professor Me. Marcelo  Guimarães.
 
-**Colaboradores** : 
+**Autora**: 
 - ![Nicole Silva](https://github.com/Nicolesilvaa)
+
+**Colaboradores** : 
 - ![Lucas Perrone](https://github.com/LucasPerrone21)
