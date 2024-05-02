@@ -132,13 +132,10 @@ void packet_is_OK(){
     
   led_Flash(2, 20);
   tempoMedio(TXPacketCount,transmitTime);
-    
-   
+
 }
 
-
 void packet_is_Error(){
-
   //if here there was an error transmitting packet
   uint16_t IRQStatus;
   IRQStatus = LT.readIrqStatus();                  //read the the interrupt register
@@ -174,19 +171,6 @@ void tempoMedio(uint32_t &TXPacketCount, uint32_t &transmitTime){
   }
 } 
 
-void variaSF_TXPower((uint32_t &TXPacketCount, uint8_t &SpreadingFactor[], uint8_t &SF){
-
-  int sizeSF = sizeof(SpreadingFactor);
-  int i = 0;
-
-  if(TXPacketCount % 200 == 0 && i < sizeSF){ 
-
-    SF = SpreadingFactor[i++];
-
-  }
-
-  return SF;
-}
 
 void led_Flash(uint16_t flashes, uint16_t delaymS){
 

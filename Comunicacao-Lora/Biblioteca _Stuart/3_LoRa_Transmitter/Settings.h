@@ -5,7 +5,13 @@
 #define NRESET 9
 #define LED1 7
 #define DIO1 3
-#define LORA_DEVICE DEVICE_SX1280  //we need to define the device we are using
+#define DIO2 -1                 //not used 
+#define DIO3 -1                 //not used
+#define RX_EN -1                //pin for RX enable, used on some SX1280 devices, set to -1 if not used
+#define TX_EN -1                //pin for TX enable, used on some SX1280 devices, set to -1 if not used  
+#define BUZZER -1               //pin for BUZZER, set to -1 if not used 
+
+#define LORA_DEVICE DEVICE_SX1280               //we need to define the device we are using  
 
 uint8_t SpreadingFactor[] = {LORA_SF5,LORA_SF6,LORA_SF7,LORA_SF8,LORA_SF9,LORA_SF10,LORA_SF11,LORA_SF12};  //LoRa spreading factor
 
