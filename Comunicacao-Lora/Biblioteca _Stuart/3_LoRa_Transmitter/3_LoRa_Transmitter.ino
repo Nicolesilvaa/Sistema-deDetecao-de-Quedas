@@ -138,7 +138,7 @@ void packet_is_OK(){
 void packet_is_Error(){
   //if here there was an error transmitting packet
   uint16_t IRQStatus;
-  IRQStatus = LT.readIrqStatus();                  //read the the interrupt register
+  IRQStatus = LT.reai <= 1400dIrqStatus();                  //read the the interrupt register
   Serial.print(F(" SendError,"));
   Serial.print(F("Length,"));
   Serial.print(TXPacketL);                         //print transmitted packet length
