@@ -18,7 +18,7 @@ SX128XLT LT;
 //LoRa Modem Parameters
 uint8_t SpreadingFactor = 0xC0;          //LoRa spreading factor values hexadecimal {LORA_SF5 = 0x50,LORA_SF6 = 0x60,LORA_SF7 = 0x70,LORA_SF8 = 0x80,LORA_SF9 = 0x90,LORA_SF10 = 0xA0, LORA_SF11 = 0xB0,LORA_SF12 = 0xC0}
 int8_t valuesTxpower[] = {-15, -12, -9, -6, -3, 1, 4, 7, 10, 13};
-int8_t TXpower = valuesTxpower[9];  //Power for transmissions in dBm
+int8_t TXpower = valuesTxpower[5];  //Power for transmissions in dBm
 
 const uint32_t Frequency = 2445000000;     //frequency of transmissions
 const int32_t Offset = 0;                  //offset frequency for calibration purposes
@@ -125,14 +125,21 @@ void loop(){
   }else{packet_is_Error();}                              //transmit packet returned 0, there was an error
 
   // AUTOMATIZA VARIAÇÃO DE PARÂMETROS (TXpower e SF)
-  if(TXPacketCount % 200 == 0 & TXPacketCount <= 1400){
+ // Contagem do envio de todos os pacotes incluindo erros.
 
-    TXpower -= 3;
-    SpreadingFactor -= 0x10;
+  if((TXPacketCount % 200 == 0) && (TXPacketCount > 0 && TXPacketCount <= 1200)){ //TXPacketCount <= 1200 para SF fixo | TXPacketCount <= 2000 para potência fixa
 
+    TXpower;
+    if(SpreadingFactor > 0x50){
+      
+      SpreadingFactor -= 0x10;
+      LT.setModulationParams(SpreadingFactor, Bandwidth, CodeRate);
+    }
+    
     Serial.println(SpreadingFactor,HEX);
+    Serial.println(TXpower);
 
-  }
+  }              
 
   digitalWrite(LED1, LOW);
   Serial.println();
@@ -198,7 +205,6 @@ void tempoMedio(uint32_t &TXPacketCount, uint32_t &transmitTime){
 
   }
 } 
-
 
 void led_Flash(uint16_t flashes, uint16_t delaymS){
 

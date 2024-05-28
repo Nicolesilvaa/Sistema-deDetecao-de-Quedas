@@ -18,7 +18,7 @@ SX128XLT LT;
 //LoRa Modem Parameters
 uint8_t SpreadingFactor = 0xC0;          //LoRa spreading factor values hexadecimal {LORA_SF5 = 0x50,LORA_SF6 = 0x60,LORA_SF7 = 0x70,LORA_SF8 = 0x80,LORA_SF9 = 0x90,LORA_SF10 = 0xA0, LORA_SF11 = 0xB0,LORA_SF12 = 0xC0}
 int8_t valuesTxpower[] = {-15, -12, -9, -6, -3, 1, 4, 7, 10, 13};
-int8_t TXpower = valuesTxpower[9];  //Power for transmissions in dBm
+int8_t TXpower = valuesTxpower[5];  //Power for transmissions in dBm
 
 const uint32_t Frequency = 2445000000;     //frequency of transmissions
 const int32_t Offset = 0;                  //offset frequency for calibration purposes
@@ -66,7 +66,7 @@ void setup(){
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, RFBUSY,DIO1, RX_EN, TX_EN, LORA_DEVICE)){
+  if (LT.begin(NSS,NRESET, RFBUSY,DIO1, RX_EN, TX_EN, LORA_DEVICE)){
 
     Serial.println(F("LoRa Device found"));
     //led_Flash(2, 1);
@@ -132,11 +132,28 @@ void loop(){
     
     digitalWrite(BUZZER, LOW);
   
-  }                    //buzzer off
+  }   
+  
+  // AUTOMATIZA VARIAÇÃO DE PARÂMETROS (TXpower e SF)
+
+  uint32_t contPacket = RXpacketCount + errors; // Contagem do envio de todos os pacotes incluindo erros.
+
+  if((contPacket % 200 == 0) && (contPacket > 0 && contPacket <= 1200)){ //TXPacketCount <= 1200 para SF fixo | TXPacketCount <= 2000 para potência fixa
+
+    TXpower;
+    if(SpreadingFactor > 0x50){
+      
+      SpreadingFactor -= 0x10;
+      LT.setModulationParams(SpreadingFactor, Bandwidth, CodeRate);
+    }
+    
+    Serial.println(SpreadingFactor,HEX);
+    Serial.println(TXpower);
+
+  }               
 
   digitalWrite(LED1, LOW);                                        //LED off
   Serial.println();
-
 }
 
 
@@ -148,6 +165,10 @@ void packet_is_OK(){
   RXpacketCount++;
 
   printElapsedTime();                              //print elapsed time to Serial Monitor
+  Serial.print(F("TXpower,"));
+  Serial.print(TXpower);
+  Serial.print(F(",Spreading Factor,"));
+  Serial.print(SpreadingFactor, HEX);
   Serial.print(F(",RSSI,"));
   Serial.print(PacketRSSI);
   Serial.print(F("dBm,SNR,"));
@@ -159,10 +180,11 @@ void packet_is_OK(){
   Serial.print(F(",Errors,"));
   Serial.print(errors);
   Serial.print(F(",IRQreg,"));
-  Serial.print(IRQStatus, HEX);
+  Serial.print(IRQStatus, HEX);          //IRQ são interrupções de hardware, canais que os dispositivos podem utilizar para chamar a atenção do processador
+ 
 
   led_Flash(2, 20);  
-  rssiMedio(RXpacketCount,PacketRSSI);  
+  rssiMedio(RXpacketCount,PacketRSSI); 
      
 }
 
