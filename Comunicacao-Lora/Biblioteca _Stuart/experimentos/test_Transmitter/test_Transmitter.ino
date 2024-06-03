@@ -115,13 +115,19 @@
 
       
       if (LT.transmit(buff, TXPacketL, 10000, TXpower, WAIT_TX)){  //will return packet length sent if OK, otherwise 0 if transmit, timeout 10 seconds{
-      endmS = millis();                                          //packet sent, note end time
-      TXPacketCount++;
-      packet_is_OK();
+     
+        endmS = millis();                                          //packet sent, note end time
+        TXPacketCount++;
+        packet_is_OK();
 
-      }else{packet_is_Error();}                              //transmit packet returned 0, there was an error
+      }else{  //transmit packet returned 0, there was an error
 
-      }  
+
+        packet_is_Error();
+
+
+    }                              
+        
                 
 
       digitalWrite(LED1, LOW);

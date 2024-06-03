@@ -119,6 +119,7 @@
       PacketSNR = LT.readPacketSNR();                //read the received SNR value
 
       if(RXPacketL == 0){                           //if the LT.receive() function detects an error, RXpacketL == 0
+        
         packet_is_Error();
 
       }else{
@@ -132,6 +133,9 @@
       countPacket = RXpacketCount + errors;       // Count of all packages sent, including errors.
       medianTimeRX(receiverTime,countPacket);
       standardDeviationRSSI_SNR(countPacket,PacketRSSI,PacketSNR);
+
+
+      //varying parameters
 
       digitalWrite(LED1, LOW);                                      
       Serial.println();  
