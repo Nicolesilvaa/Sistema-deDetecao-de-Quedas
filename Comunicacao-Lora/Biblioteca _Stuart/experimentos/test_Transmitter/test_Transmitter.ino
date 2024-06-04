@@ -122,14 +122,10 @@
 
       }else{  //transmit packet returned 0, there was an error
 
-
         packet_is_Error();
-    }                              
+      }                              
         
-  }
      
-                
-
       digitalWrite(LED1, LOW);
       Serial.println();
       delay(40);   //have a delay between packets

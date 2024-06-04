@@ -33,7 +33,7 @@
     const uint8_t size = 200;                 //quantity of samples to carry out experiments
 
     uint32_t RXpacketCount,countPacket, errors, startmS, endmS;
-
+    uint32_t receiverTime;
     uint8_t RXBUFFER[RXBUFFER_SIZE];           //create the buffer that received packets are copied into
     uint8_t RXPacketL;                         //stores length of packet received
     int16_t PacketRSSI;                        //stores RSSI of received packet
@@ -107,7 +107,6 @@
    }
 
     void loop(){
-
       startmS =  millis(); 
       RXPacketL = LT.receive(RXBUFFER, RXBUFFER_SIZE, 60000, WAIT_RX); //wait for a packet to arrive with 60seconds (60000mS) timeout
 
@@ -122,20 +121,20 @@
         
         packet_is_Error();
 
+
       }else{
         
         endmS = millis(); 
-        packet_is_OK();  
+        packet_is_OK();
       }
 
-      if(BUZZER > 0){digitalWrite(BUZZER, LOW);}   
+      if(BUZZER > 0){digitalWrite(BUZZER, LOW);}  
+
+      Serial.println("passei do if") ;
       
       countPacket = RXpacketCount + errors;       // Count of all packages sent, including errors.
       medianTimeRX(receiverTime,countPacket);
       standardDeviationRSSI_SNR(countPacket,PacketRSSI,PacketSNR);
-
-
-      //varying parameters
 
       digitalWrite(LED1, LOW);                                      
       Serial.println();  
@@ -144,7 +143,6 @@
     void packet_is_OK(){
 
       int16_t IRQStatus, localCRC;
-      uint32_t receiverTime;
 
       receiverTime = endmS - startmS;
 
@@ -211,20 +209,21 @@
 
         // Declaring variables
 
-        int16_t sumRSSI, mRSSI, varianceSSI, sdRSSI;
+        int16_t sumRSSI, mRSSI, varianceRSSI, sdRSSI;
         int8_t  sumSNR, mSNR, varianceSNR, sdSNR;
        
         int16_t st_packetRSSI[size];
         int8_t st_packetSNR[size];
 
         // Storing data
-        while(countPacket <= size){
+        if(countPacket <= size){
 
             st_packetRSSI[size] = PacketRSSI;
             st_packetSNR[size] = PacketSNR;
             
             sumRSSI += PacketRSSI;
             sumSNR += PacketSNR;
+            
         }
 
         // Calculating variance
@@ -236,8 +235,8 @@
             
             for(int i = 0; i < size; i++){
 
-                varianceRSSI += (st_packetRSSI[i] - mRSSI)^2;
-                varianceSNR += (st_packetSNR[i] - mSNR)^2;
+              varianceRSSI += (st_packetRSSI[i] - mRSSI)^2;
+              varianceSNR += (st_packetSNR[i] - mSNR)^2;
             }
             
             // Calculating sample standard deviation
@@ -247,7 +246,7 @@
             //Output
             Serial.print("Standard deviation RSSI: ");
             Serial.print(sdRSSI);
-            Serial.print("Standard deviation SNR: ")
+            Serial.print("Standard deviation SNR: ");
             Serial.print(sdSNR);
             Serial.println();
         }
