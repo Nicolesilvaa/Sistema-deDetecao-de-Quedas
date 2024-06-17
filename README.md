@@ -6,7 +6,7 @@
 ## 📈  Sobre o projeto : 
 
 ###  📌 Objetivo :
-> O projeto visa o desenvolvimento de um sistema de detecção de quedas de pessoas, tendo como base a comunicação  sem fio  de rádio frequência, LoRa. Inicialmente,buscamos detectar uma queda utilizando o sensor MPU6050 e conceitos  físicos de queda livre. Ao detectarmos a queda, o sistema irá gerar um alerta por meio de um protocolo de comunicação.    
+> O projeto visa o desenvolvimento de um sistema de detecção de quedas de pessoas, tendo como base a comunicação  sem fio  de rádio frequência, LoRa. Inicialmente,buscamos detectar uma queda utilizando o sensor MPU6050 e conceitos  físicos de queda livre. Ao detectarmos a queda, o módulo transmissor gera um alerta para o módulo receptor que emite um alarme para sinalizar a ocorrência da queda. 
 
 ### 🔧 Tecnologias utilizadas: 
 
