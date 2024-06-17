@@ -21,7 +21,7 @@
 
     //LoRa Modem Parameters and variables ***************************************************************************************************************************
 
-    uint8_t SpreadingFactor = 0xC0;             //LoRa spreading factor values hexadecimal {LORA_SF5 = 0x50,LORA_SF6 = 0x60,LORA_SF7 = 0x70,LORA_SF8 = 0x80,LORA_SF9 = 0x90,LORA_SF10 = 0xA0, LORA_SF11 = 0xB0,LORA_SF12 = 0xC0}
+    uint8_t SpreadingFactor = 0xA0;             //LoRa spreading factor values hexadecimal {LORA_SF5 = 0x50,LORA_SF6 = 0x60,LORA_SF7 = 0x70,LORA_SF8 = 0x80,LORA_SF9 = 0x90,LORA_SF10 = 0xA0, LORA_SF11 = 0xB0,LORA_SF12 = 0xC0}
     int8_t valuesTxpower[] = {-15, -12, -9, -6, -3, 1, 4, 7, 10, 13};
     int8_t TXpower = valuesTxpower[9];          //Power for transmissions in dBm
 
@@ -129,15 +129,14 @@
       }
 
       if(BUZZER > 0){digitalWrite(BUZZER, LOW);}  
-
-      Serial.println("passei do if") ;
       
       countPacket = RXpacketCount + errors;       // Count of all packages sent, including errors.
-      medianTimeRX(receiverTime,countPacket);
+      medianTimeRX(startmS, endmS,countPacket);
       standardDeviationRSSI_SNR(countPacket,PacketRSSI,PacketSNR);
 
       digitalWrite(LED1, LOW);                                      
       Serial.println();  
+
     }
 
     void packet_is_OK(){
@@ -145,7 +144,6 @@
       int16_t IRQStatus, localCRC;
 
       receiverTime = endmS - startmS;
-
       IRQStatus = LT.readIrqStatus();                  //read the LoRa device IRQ status register
       RXpacketCount++;
 
@@ -204,7 +202,6 @@
 
     }
 
-
     void standardDeviationRSSI_SNR(uint32_t &countPacket, int16_t  &PacketRSSI, int8_t &PacketSNR){ //calculates sample standard deviation SNR and RSSI
 
         // Declaring variables
@@ -245,7 +242,7 @@
             
             //Output
             Serial.print("Standard deviation RSSI: ");
-            Serial.print(sdRSSI);
+            Serial.println(sdRSSI);
             Serial.print("Standard deviation SNR: ");
             Serial.print(sdSNR);
             Serial.println();
@@ -253,16 +250,18 @@
     }
 
 
-    void medianTimeRX(uint32_t &receiverTime, uint32_t &countPacket){
+    void medianTimeRX(uint32_t &starmS, uint32_t &endmS, uint32_t &countPacket){
 
      uint32_t sumTime;
-     sumTime += receiverTime;
 
+     receiverTime = endmS - startmS;
+     sumTime += receiverTime;
+    
       if(countPacket == size){
       
         uint32_t  median = sumTime/countPacket;
 
-        Serial.print(" Median time de reception = ");
+        Serial.println(" Median time de reception = ");
         Serial.print(median); 
         Serial.print("ms");
         Serial.println();

@@ -7,18 +7,11 @@
 ## Documentação: 
 
 
+- [Analisando parâmetros simplesmódulo LoRa]()
+- [Analisando tempo de transmissão e recepção,com confirmação, de um pacote]()
 
 
 
+*Autora:* Nicole Silva.
 
-
-
-
-
-
-
-
-
-*Autora:* Nicole Silva
-
-*Data:* 06/05/2024
+*Data:* 06/05/2024.
