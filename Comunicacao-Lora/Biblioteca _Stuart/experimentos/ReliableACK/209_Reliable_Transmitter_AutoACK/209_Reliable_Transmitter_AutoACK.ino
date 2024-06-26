@@ -1,39 +1,4 @@
-/*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 05/11/21
-
-  This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors.
-*******************************************************************************************************/
-
-/*******************************************************************************************************
-  Program Operation - This is a basic demonstration of the transmission and acknowledgement of a 'Reliable'
-  packet.
-
-  A reliable packet has 4 bytes automatically appended to the end of the buffer\array that is the data
-  payload. The first two bytes appended are a 16bit 'NetworkID'. The receiver needs to have the same
-  NetworkID as configured for the transmitter since the receiver program uses the NetworkID to check that
-  the received packet is from a known source.  The third and fourth bytes appended are a 16 bit CRC of
-  the payload. The receiver will carry out its own CRC check on the received payload and can then verify
-  this against the CRC appended in the packet. The receiver is thus able to check if the payload is valid.
-
-  For a packet to be accepted by the receiver, the networkID and payload CRC appended to the packet by the
-  transmitter need to match those from the receiver which gives a high level of assurance that the packet
-  is valid.
-
-  If the received packet is valid then the networkID and payload CRC are returned in a 4 byte packet as an
-  acknowledgement that the transmitter listens for. If the transmitter does not receive the acknowledgement
-  within the ACKtimeout period, the original packet is re-transmitted until a valid acknowledgement is
-  received. This program should be used with the matching receiver program, 210_Reliable_Receiver_AutoACK.
-
-  The program will attempt to transmit the packet and have it acknowledged by the receiver a number of times
-  as defined by constant TXattempts. If there is no acknowledge withing this time it will be reported.
-
-  It is possible to use the 'NetworkID' to direct the packet to specific receivers.
-
-  Serial monitor baud rate should be set at 115200.
-
-  *******************************************************************************************************/
-
+//Nicole Silva version 1.0
 #include <SPI.h>                                //the LoRa device is SPI based so load the SPI library                                         
 #include <SX128XLT.h>                           //include the appropriate library  
 
@@ -41,30 +6,59 @@ SX128XLT LT;                                    //create a library class instanc
 
 #define NSS 10                                  //select pin on LoRa device
 #define NRESET 9                                //reset pin on LoRa device
-#define RFBUSY 7                                //busy pin on LoRa device 
+#define RFBUSY 8                               //busy pin on LoRa device 
 #define DIO1 3                                  //DIO1 pin on LoRa device, used for sensing RX and TX done 
 #define LORA_DEVICE DEVICE_SX1280               //we need to define the device we are using
-#define TXpower 2                               //LoRa transmit power in dBm
+#define TXpower 13
+#define LED1 7                             //LoRa transmit power in dBm
 
 #define ACKtimeout 1000                         //Acknowledge timeout in mS                      
 #define TXtimeout 1000                          //transmit timeout in mS. If 0 return from transmit function after send.  
 #define TXattempts 10                           //number of times to attempt to TX and get an Ack before failing  
 
-uint8_t buff[] = "Hello World";                 //the payload to send
+uint8_t buff[] = "Experimento Lora";                 //the payload to send
 uint16_t PayloadCRC;
 uint8_t TXPacketL;
+uint32_t transmitterTime, startmS, endmS;
 
 const uint16_t NetworkID = 0x3210;              //NetworkID identifies this connection, needs to match value in receiver
 
+void setup(){
 
-void loop()
-{
+  pinMode(LED1, OUTPUT); 
+  
+  Serial.begin(115200);
+  Serial.println();
+  Serial.println(F("209_Reliable_Transmitter_AutoACK Starting"));
+
+  SPI.begin();
+
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE)){
+
+    Serial.println(F("LoRa Device found"));
+    delay(1000);
+
+  }
+  else{
+
+    Serial.println(F("No LoRa device responding"));
+    while (1);
+    led_Flash(50, 50); 
+  }
+
+  LT.setupLoRa(2445000000, 0, LORA_SF7, LORA_BW_0200, LORA_CR_4_5);
+
+  Serial.println(F("Transmitter ready"));
+  Serial.println();
+}
+
+void loop(){
 
   //keep transmitting the packet until an ACK is received
   uint8_t attempts = TXattempts;
 
-  do
-  {
+  do{
+
     Serial.print(F("Transmit Payload > "));
     LT.printASCIIArray(buff, sizeof(buff));     //print the payload buffer as ASCII
     Serial.println();
@@ -73,6 +67,7 @@ void loop()
     Serial.print(F("Send attempt "));
     Serial.println(TXattempts - attempts + 1);
 
+    startmS =  millis();
     TXPacketL = LT.transmitReliableAutoACK(buff, sizeof(buff), NetworkID, ACKtimeout, TXtimeout, TXpower, WAIT_TX);
     attempts--;
 
@@ -80,6 +75,7 @@ void loop()
     {
       //if transmitReliable() returns > 0 then transmit and ack was OK
       PayloadCRC = LT.getTXPayloadCRC(TXPacketL);                        //read the actual transmitted CRC from the LoRa device buffer
+      endmS = millis();
       packet_is_OK();
       Serial.println();
     }
@@ -96,6 +92,7 @@ void loop()
   if (TXPacketL > 0)
   {
     Serial.println(F("Packet acknowledged"));
+    endmS = millis();
   }
 
   if (attempts == 0)
@@ -105,49 +102,39 @@ void loop()
     Serial.print(F(" attempts"));
   }
 
+  transmitterTime = endmS - startmS;
   Serial.println();
-  delay(5000);                                         //have a delay between packets
+  delay(500);                                         //have a delay between packets
 }
 
+void packet_is_OK(){
 
-void packet_is_OK()
-{
   Serial.print(F("LocalNetworkID,0x"));
   Serial.print(NetworkID, HEX);
   Serial.print(F(",TransmittedPayloadCRC,0x"));        //print CRC of transmitted packet
   Serial.print(PayloadCRC, HEX);
+  Serial.print(F(",Transmitter Time, ms")); 
+  Serial.print(transmitterTime);
+  led_Flash(2, 20);
 }
 
 
-void packet_is_Error()
-{
+void packet_is_Error(){
+
   Serial.print(F("No Packet acknowledge"));
   LT.printIrqStatus();                                 //prints the text of which IRQs set
   LT.printReliableStatus();                            //print the reliable status
 }
 
 
-void setup()
-{
-  Serial.begin(115200);
-  Serial.println();
-  Serial.println(F("209_Reliable_Transmitter_AutoACK Starting"));
+void led_Flash(uint16_t flashes, uint16_t delaymS){
+  uint16_t index;
 
-  SPI.begin();
-
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
-  {
-    Serial.println(F("LoRa Device found"));
-    delay(1000);
+  for (index = 1; index <= flashes; index++){
+        
+    digitalWrite(LED1, HIGH);
+    delay(delaymS);
+    digitalWrite(LED1, LOW);
+    delay(delaymS);
   }
-  else
-  {
-    Serial.println(F("No LoRa device responding"));
-    while (1);
-  }
-
-  LT.setupLoRa(2445000000, 0, LORA_SF5, LORA_BW_1600, LORA_CR_4_5);
-
-  Serial.println(F("Transmitter ready"));
-  Serial.println();
 }
