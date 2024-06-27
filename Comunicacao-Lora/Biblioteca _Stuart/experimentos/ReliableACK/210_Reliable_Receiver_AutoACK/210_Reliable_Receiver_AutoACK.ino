@@ -44,12 +44,14 @@ void setup(){
   {
     Serial.println(F("LoRa Device found"));
     delay(1000);
+    led_Flash(5,50);
   }
   else
   {
     Serial.println(F("No LoRa device responding"));
     while (1);
-    led_Flash(50, 50); 
+    led_Flash(10, 50); 
+    
   }
 
   LT.setupLoRa(2445000000, 0, LORA_SF7, LORA_BW_0200, LORA_CR_4_5);
@@ -134,7 +136,7 @@ void printPacketDetails(){
 void led_Flash(uint16_t flashes, uint16_t delaymS){
   uint16_t index;
 
-  for (index = 1; index <= flashes; index++){
+  for(index = 1; index <= flashes; index++){
         
     digitalWrite(LED1, HIGH);
     delay(delaymS);

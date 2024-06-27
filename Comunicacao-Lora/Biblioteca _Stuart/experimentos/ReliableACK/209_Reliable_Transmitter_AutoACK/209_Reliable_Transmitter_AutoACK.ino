@@ -37,13 +37,14 @@ void setup(){
 
     Serial.println(F("LoRa Device found"));
     delay(1000);
+    led_Flash(5,50);
 
   }
   else{
 
     Serial.println(F("No LoRa device responding"));
     while (1);
-    led_Flash(50, 50); 
+    led_Flash(10, 50); 
   }
 
   LT.setupLoRa(2445000000, 0, LORA_SF7, LORA_BW_0200, LORA_CR_4_5);
@@ -85,7 +86,7 @@ void loop(){
       packet_is_Error();
       Serial.println();
     }
-    delay(500);                                        //small delay between tranmission attampts
+    delay(5000);                                        //small delay between tranmission attampts
   }
   while ((TXPacketL == 0) && (attempts != 0));
 
@@ -104,7 +105,7 @@ void loop(){
 
   transmitterTime = endmS - startmS;
   Serial.println();
-  delay(500);                                         //have a delay between packets
+  delay(5000);                                         //have a delay between packets
 }
 
 void packet_is_OK(){
