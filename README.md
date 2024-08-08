@@ -25,8 +25,6 @@
 
 **Laboratório**: LaSid (Laboratório de Sistemas Distribuídos - Instituto de computação UFBA)
 
-**Orientadores**: Professor Dr. Raimundo Macêdo e Professor Me. Marcelo  Guimarães.
-
 **Autora**: 
 - ![Nicole Silva](https://github.com/Nicolesilvaa)
 
