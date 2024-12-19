@@ -30,9 +30,8 @@
 *******************************************************************************************************/
 
 #include <SPI.h>                                //the lora device is SPI based so load the SPI library                                         
-#include <SX128XLT.h>                           //include the appropriate library  
-#include<Wire.h>                                //Biblioteca para comunicação I2C
-#include<math.h>                                //Biblioteca de Calculos matematicos
+#include <SX128XLT.h>                           //include the appropriate library 
+#include "detector.h" 
 
 SX128XLT LT;                                    //create a library class instance called LT
 
@@ -125,9 +124,7 @@ void loop()
 
   
   // QUEDA PARA FRENTE
-  if ((AcHorizontal <= 3) && (AcVertical <= -1) && (gyLatWire.write(0x3B); // registrador dos dados medidos (ACCEL_XOUT_H)
-  Wire.endTransmission(false);
-  Wireral <= -500)){
+  if ((AcHorizontal <= 3) && (AcVertical <= -1) && (gyLateral <= -500)){
     queda = true;
     strcpy(buff, "Queda para frente detectada");
   }
@@ -151,12 +148,10 @@ void loop()
     {
       TXPacketCount++;
       packet_is_OK();
-      queda = false;
     }
     else
     {
       packet_is_Error();                                         //transmit packet returned 0, there was an error
-      queda = false;
     }
 
     Serial.println();
@@ -171,8 +166,7 @@ void packet_is_OK()
 }
 
 
-void packet_is_Error()
-{
+void packet_is_Error(){
   //if here there was an error transmitting packet
   uint16_t IRQStatus;
   IRQStatus = LT.readIrqStatus();                      //read the the interrupt register
@@ -201,7 +195,6 @@ void setup()
   Wire.endTransmission(true);
 
   // Fim da parte da Queda
-
 
   Serial.begin(9600);
   Serial.println();
