@@ -33,7 +33,6 @@
 
 #include <SPI.h>                                //the lora device is SPI based so load the SPI library
 #include <SX128XLT.h>  
-#include <SoftwareSerial.h>
                                                     //include the appropriate library   
 
 SX128XLT LT;                                    //create a library class instance called LT
@@ -62,10 +61,11 @@ void loop()
   PacketRSSI = LT.readPacketRSSI();              //read the received packets RSSI value
   PacketSNR = LT.readPacketSNR();                //read the received packets SNR value
 
-  if (RXPacketL == 0)                            //if the LT.receive() function detects an error RXpacketL is 0
+  if (RXPacketL == 0)                       //if the LT.receive() function detects an error RXpacketL is 0
   {
     packet_is_Error();
   }
+
   else
   {
     packet_is_OK();
@@ -100,21 +100,7 @@ void packet_is_OK()
   
   // Serial.print(F("  "));
   // LT.printASCIIPacket(RXBUFFER, RXPacketL);        //print the packet as ASCII characters
-
-  // Serial.print(F(",RSSI,"));
-  // Serial.print(PacketRSSI);
-  // Serial.print(F("dBm,SNR,"));
-  // Serial.print(PacketSNR);
-  // Serial.print(F("dB,Length,"));
-  // Serial.print(RXPacketL);
-  // Serial.print(F(",Packets,"));
-  // Serial.print(RXpacketCount);
-  // Serial.print(F(",Errors,"));
-  // Serial.print(errors);
-  // Serial.print(F(",IRQreg,"));
-  // Serial.print(IRQStatus, HEX);
 }
-
 
 void packet_is_Error(){
   uint16_t IRQStatus;
@@ -165,10 +151,10 @@ void setup()
 
   SPI.begin();
 
-  // Serial.println(NSS);
-  // Serial.println(NRESET);
-  // Serial.println(RFBUSY);
-  // Serial.println(LORA_DEVICE);
+  Serial.println(NSS);
+  Serial.println(NRESET);
+  Serial.println(RFBUSY);
+  Serial.println(LORA_DEVICE);
 
   bool x = LT.begin(NSS, NRESET, RFBUSY, LORA_DEVICE);
 
