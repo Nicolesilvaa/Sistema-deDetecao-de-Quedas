@@ -125,7 +125,9 @@ void loop()
 
   
   // QUEDA PARA FRENTE
-  if ((AcHorizontal <= 3) && (AcVertical <= -1) && (gyLateral <= -500)){
+  if ((AcHorizontal <= 3) && (AcVertical <= -1) && (gyLatWire.write(0x3B); // registrador dos dados medidos (ACCEL_XOUT_H)
+  Wire.endTransmission(false);
+  Wireral <= -500)){
     queda = true;
     strcpy(buff, "Queda para frente detectada");
   }

@@ -96,12 +96,7 @@ void packet_is_OK()
       digitalWrite(6, LOW);
         
       //Aguarda intervalo de tempo em milissegundos
-      delay(10000);
-
-    
-    
-   
-                         
+      delay(10000); 
   
   // Serial.print(F("  "));
   // LT.printASCIIPacket(RXBUFFER, RXPacketL);        //print the packet as ASCII characters
