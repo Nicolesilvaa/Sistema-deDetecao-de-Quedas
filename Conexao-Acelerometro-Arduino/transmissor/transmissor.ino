@@ -47,10 +47,97 @@ uint32_t TXPacketCount;
 uint8_t buff[] = "";      //the message to send
 
 
-void loop(){
+
+// Variaveis da queda
+
+bool queda = false;
+
+const int MPU_addr=0x68; //Endereço do sensor
+
+int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ; //Variaveis para pegar os valores medidos
+
+float AcnX, AcnY, AcnZ;
+
+float AcVertical, AcLateral, AcHorizontal;
+float gyVertical, gyLateral, gyHorizontal;
+
+// Fim das variaveis da queda
+
+
+
+
+// Funções de Queda
+
+
+float converteGraus(int16_t valor, int16_t escala) {
+    float newValor = (int)valor;
+    float newEscala = (int)escala;
+    float resultado = (newValor * newEscala )/ 32768.00;
+    return resultado;
+}
+
+float converteGravidade(int16_t valor, int16_t escala) {
+    float newValor = (int)valor;
+    float newEscala = (int)escala;
+    float resultado = (newValor * newEscala )/ 32768.00;
+    return resultado;
+}
+
+double gravidadeParaAceleracao(float valor){
+  return valor * 9.8;
+}
+
+// Fim das Funções de Queda
+
+
+
+
+
+void loop()
+{
+
+  // PARTE DA QUEDA
+
+  Wire.beginTransmission(MPU_addr); //Começa a transmissao de dados para o sensor
+  Wire.write(0x3B); // registrador dos dados medidos (ACCEL_XOUT_H)
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU_addr,14,true); // faz um "pedido" para ler 14 registradores, que serão os registrados com os dados medidos
+  AcX=Wire.read()<<8|Wire.read(); // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)
+  AcY=Wire.read()<<8|Wire.read(); // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
+  AcZ=Wire.read()<<8|Wire.read(); // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
+  Tmp=Wire.read()<<8|Wire.read(); // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
+  GyX=Wire.read()<<8|Wire.read(); // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
+  GyY=Wire.read()<<8|Wire.read(); // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
+  GyZ=Wire.read()<<8|Wire.read(); // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
+
+  AcnX = converteGravidade(AcX, 4); // Valor de X em g
+  AcnY = converteGravidade(AcY, 4); // Valor de Y em g
+  AcnZ = converteGravidade(AcZ, 4); // Valor de Z em g
+
+  gyLateral     = converteGraus(GyX, 1000);
+  gyVertical    = converteGraus(GyY, 1000);
+  gyHorizontal = converteGraus(GyZ, 1000);
+
+  AcLateral = gravidadeParaAceleracao(AcnX); // Valor de X em m/s²
+  AcVertical = gravidadeParaAceleracao(AcnY); // Valor de Y em m/s²
+  AcHorizontal = gravidadeParaAceleracao(AcnZ); // Valor de Z em m/s²
 
   
-  if (detectarQueda((char*)buff)){
+  // QUEDA PARA FRENTE
+  if ((AcHorizontal <= 3) && (AcVertical <= -1) && (gyLateral <= -500)){
+    queda = true;
+    strcpy(buff, "Queda para frente detectada");
+  }
+
+  // QUEDA PARA TRÁS
+   if ((AcHorizontal <= 0) && (AcVertical <= -1) && (gyLateral >= 500)){
+    queda = true;
+    strcpy(buff, "Queda para trás detectada");
+  }
+  
+  // FIM DA PARTE DA QUEDA
+
+  if (queda){
   
     TXPacketL = sizeof(buff);                                    //set TXPacketL to length of array
     buff[TXPacketL - 1] = '*';                                   //replace null character at buffer end so its visible on receiver
